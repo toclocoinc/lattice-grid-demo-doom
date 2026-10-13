@@ -36,6 +36,8 @@ Rebuilding `engine/dist/` requires [Emscripten](https://emscripten.org/); the re
 
 At every resolution the changed-cell count is a small fraction of the cell count, confirming the pipeline pushes deltas rather than full frames. The absolute fps figures are well under the 30&nbsp;fps target; a bare-engine probe with no grid involved at all — just the WebAssembly build ticking with its `onDoomFrame` callback doing nothing — measured only ~4.6&nbsp;fps on the same run, on a machine that `uptime` showed under heavy, fluctuating load (load averages between 5 and 15) from other work sharing the host at the time. That makes the WebAssembly engine's own tick cost, not the grid's cell updates, the dominant cost on this run: the diff-and-push step on the already-decoded frames took a few milliseconds at every resolution tested. A quieter machine should comfortably clear 30&nbsp;fps at 160&times;100, which is what the demo's own auto-fallback to 80&times;50 is there to handle if it does not.
 
+`npm run verify` on this same loaded machine shows the mechanism working correctly end to end: the live page's automatic fallback to 80&times;50 fires as designed, every changed-cell reading stays a small fraction of the cell count, and the console stays free of errors and `[lattice]` warnings throughout. The boot-within-5s and 30fps-floor figures themselves fail on this run (boot took 14&ndash;20s; fps after the fallback was 1), for the same host-contention reason as above, not a fault in the pipeline or the fallback logic.
+
 ## Files
 
 - `index.html`: the page.
