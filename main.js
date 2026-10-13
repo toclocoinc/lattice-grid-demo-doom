@@ -166,7 +166,7 @@ function onDoomFrame(heap, ptr, w, h) {
     sampleFrames += 1;
     if (now - sampleStart >= SAMPLE_WINDOW_MS) finishSampling();
   }
-  overlay.textContent = `fps: ${fps || '—'} · changed pixels: ${changedLast} / ${cols * rows} · rows written: ${updates.length}`;
+  overlay.textContent = `fps: ${fps || '—'}`;
   window.__doom = { fps, avgFps: playStart ? Math.round((playFrames * 1000) / Math.max(1, now - playStart)) : 0, changed: changedLast, cols, rows, cells: cols * rows, rowsWritten: updates.length, running };
 }
 
