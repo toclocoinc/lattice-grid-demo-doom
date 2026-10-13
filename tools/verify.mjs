@@ -1,6 +1,6 @@
 // Real-Chrome check of the demo at two screen sizes: boots to the title screen,
 // walks and turns for ten seconds, and checks the fps floor (or the fallback
-// to 80x50 holding it instead), the changed-cell count against the total cell
+// to 160x100 holding it instead), the changed-pixel count against the total pixel
 // count, and a clean console. Screenshots go to shots/.
 //   npm run serve                    (in another terminal)
 //   CHROME=/usr/bin/google-chrome node tools/verify.mjs [http://localhost:8000/]
@@ -40,8 +40,11 @@ async function run(width, height) {
   });
   page.on('pageerror', (e) => problems.push(`pageerror: ${e.message}`));
 
-  const bootStart = Date.now();
   await page.goto(url);
+  // Start is disabled until the page's module (and the grid it imports) has
+  // loaded; the boot clock starts at the click, not at navigation.
+  await page.waitForFunction(() => { const b = document.querySelector('#start'); return !!b && !b.disabled; }, { timeout: 30000 });
+  const bootStart = Date.now();
   await page.click('#start');
   await page.waitForFunction(() => window.__doom && window.__doom.running === true, { timeout: 5000 }).catch(() => {});
   check(Date.now() - bootStart < 5000, `boots and starts within 5s (${Date.now() - bootStart}ms)`);
@@ -54,9 +57,9 @@ async function run(width, height) {
 
   const state = await page.evaluate(() => window.__doom);
   const cells = state.cols * state.rows;
-  check(state.fps >= 30 || state.cols === 80, `holds 30fps at 160x100, or has fallen back to 80x50 (cols=${state.cols}, fps=${state.fps})`);
-  if (state.cols === 80) check(state.fps >= 30, `80x50 fallback holds 30fps (fps=${state.fps})`);
-  check(state.changed > 0 && state.changed < cells, `changed-cell count is a delta, not a full frame (${state.changed} of ${cells})`);
+  check(state.avgFps >= 30 || state.cols === 160, `holds 30fps at 320x200 over the walk, or has fallen back to 160x100 (cols=${state.cols}, avg ${state.avgFps} fps, last window ${state.fps})`);
+  if (state.cols === 160) check(state.avgFps >= 30, `160x100 fallback holds 30fps over the walk (avg ${state.avgFps} fps)`);
+  check(state.changed > 0 && state.changed < cells, `changed-pixel count is a delta, not a full frame (${state.changed} of ${cells})`);
   await page.screenshot({ path: `shots/${width}-playing.png` });
 
   // Keys: Escape should reach the engine and open its menu.

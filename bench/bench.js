@@ -1,12 +1,12 @@
-import { processFrame } from '../pipeline.js?v=20261013a';
+import { processFrame, rowUpdates } from '../pipeline.js?v=20261013d';
 
-const GRID = 'https://cdn.jsdelivr.net/npm/@toclocoinc/lattice-grid@1.100.1';
+const GRID = 'https://cdn.jsdelivr.net/npm/@toclocoinc/lattice-grid@1.101.0';
 const LICENCE = 'LG1.eyJ2IjoxLCJwIjoibGF0dGljZS1ncmlkIiwidCI6IlRPQ0xPQ08gSW5jIC0gcHVibGljIGRlbW9zIiwiZSI6IjIwMzAtMDEtMDEiLCJkIjpbInRvY2xvY29pbmMuZ2l0aHViLmlvIl19.9De42ua3aCGpiMB6EVRP7Tv-upUlDI-0T07rlSPzvCrsqg8t4YJi7SRnStEpAg48uzmcG7il1fR_TfwkUE7iCA';
 
 const { createGrid, setLicence } = await import(GRID + '/lattice-grid.esm.min.js');
 setLicence(LICENCE);
 
-const RESOLUTIONS = [[80, 50], [160, 100], [320, 200]];
+const RESOLUTIONS = [[320, 200], [160, 100], [80, 50]];
 
 const $ = (id) => document.getElementById(id);
 const gridHost = $('grid');
@@ -26,22 +26,17 @@ function buildBenchGrid(w, h) {
   const rect = gridHost.getBoundingClientRect();
   const cellWidth = Math.max(1, Math.floor(rect.width / w));
   const cellHeight = Math.max(1, Math.floor(rect.height / h));
-  const columns = [];
-  for (let c = 0; c < w; c += 1) {
-    columns.push({ id: 'c' + c, field: 'c' + c, type: 'text', cell: { template: '' }, sort: false, filter: false, layout: { width: cellWidth, resizable: false } });
-  }
+  // The same shape as the live page: one column, one gradient per row.
+  const columns = [{ id: 'px', field: 'px', type: 'text', value: { format: () => '' }, sort: false, filter: false, layout: { width: cellWidth * w, min: cellWidth * w, resizable: false } }];
   const data = [];
-  for (let r = 0; r < h; r += 1) {
-    const row = { key: 'r' + r };
-    for (let c = 0; c < w; c += 1) row['c' + c] = '#000000';
-    data.push(row);
-  }
-  return createGrid(gridHost, {
+  for (let r = 0; r < h; r += 1) data.push({ key: 'r' + r, px: '' });
+  const grid = createGrid(gridHost, {
     columns, rows: data, rowKey: 'key',
     showHeader: false, gridLines: 'none', selection: 'none',
     rowHeight: cellHeight, density: 'compact',
-    formatting: { '*': [{ when: { op: 'notBlank' }, style: (p) => ({ background: String(p.value) }) }] },
+    formatting: { px: [{ when: { op: 'notBlank' }, style: (p) => ({ backgroundImage: String(p.value) }) }] },
   });
+  return { grid, cellWidth };
 }
 
 // A resolution that cannot keep up stops early rather than hanging the page:
@@ -63,7 +58,7 @@ function addRow(w, h, frames, totalChanged, elapsedMs, stoppedEarly) {
 
 async function runResolution(w, h, raw, meta) {
   const frameBytes = meta.width * meta.height * meta.bytesPerPixel;
-  const grid = buildBenchGrid(w, h);
+  const { grid, cellWidth } = buildBenchGrid(w, h);
   const prev = new Int32Array(w * h).fill(-1);
   let totalChanged = 0;
   let framesRun = 0;
@@ -72,7 +67,9 @@ async function runResolution(w, h, raw, meta) {
   const start = performance.now();
   for (let f = 0; f < frameLimit; f += 1) {
     const ptr = f * frameBytes;
-    const { changed, updates } = processFrame(raw, ptr, meta.width, meta.height, w, h, prev);
+    const frame = processFrame(raw, ptr, meta.width, meta.height, w, h, prev);
+    const changed = frame.changed;
+    const updates = rowUpdates(frame, prev, w, cellWidth);
     if (updates.length) grid.rows.apply({ update: updates });
     totalChanged += changed;
     framesRun += 1;

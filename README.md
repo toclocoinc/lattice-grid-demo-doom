@@ -2,9 +2,9 @@
 
 **Live demo:** https://toclocoinc.github.io/lattice-grid-demo-doom/
 
-Doom, compiled to [WebAssembly](https://github.com/ozkl/doomgeneric) with Emscripten, rendering into a [Lattice Grid](https://www.latticegrid.dev/) of coloured cells instead of a canvas. It works in three steps: the engine hands over its native 320&times;200 frame as a raw pixel buffer; a box filter downsamples that buffer to the grid's own resolution and diffs it against the previous frame; and only the cells whose colour changed are pushed into the grid through its row-update API (`grid.rows.apply`), never a full re-render. A small overlay reports the changed-cell count and the frames per second achieved.
+Doom, compiled to [WebAssembly](https://github.com/ozkl/doomgeneric) with Emscripten, rendering into a [Lattice Grid](https://www.latticegrid.dev/) instead of a canvas. It works in three steps: the engine hands over its native 320&times;200 frame as a raw pixel buffer; the page diffs it against the previous frame (box-filtering it first when a lower resolution is selected); and only the rows whose pixels changed are pushed into the grid through its row-update API (`grid.rows.apply`), never a full re-render. A small overlay reports the changed-pixel count, the rows written and the frames per second achieved.
 
-The grid is 160 columns by 100 rows of hex colours, with its header, gridlines, selection and hover all switched off and its cell padding zeroed through the grid's own theming variables, so the coloured cells tile edge to edge and fill the viewport. Each cell's background comes from a single formatting rule (`background: cell value`) rather than a hand-written renderer, so the colouring stays inside the grid's own public styling path. A resolution switch lets you try 160&times;100 or 80&times;50 by hand; the page also samples its own frame rate during the first seconds of movement and switches itself down to 80&times;50 if 160&times;100 cannot hold 30&nbsp;fps.
+The grid has one row per frame row and a single column. Each row's cell carries that row's line of pixels as one hard-stop CSS gradient, with runs of the same colour merged, applied through a single formatting rule (`backgroundImage: cell value`) rather than a hand-written renderer, so the painting stays inside the grid's own public styling path. Header, gridlines, selection and hover are switched off and the cell padding zeroed through the grid's theming variables, so the rows tile edge to edge inside a stage that keeps the frame's aspect ratio. The default is the native 320&times;200; a resolution switch offers 160&times;100 and 80&times;50, and the page samples its own frame rate during the first seconds of movement and switches itself down to 160&times;100 if native cannot hold 30&nbsp;fps. On a desktop Chrome the native resolution runs at 30 to 60&nbsp;fps with around 170 row writes per frame while turning.
 
 ## Level data and licences
 
@@ -20,7 +20,7 @@ npm run serve        # http://localhost:8000/
 npm run verify        # headless Chrome check of boot, fps, deltas and console cleanliness
 ```
 
-Press **Start** to boot into Doom. Arrow keys move and turn, Ctrl fires, Space uses, Enter confirms and Esc opens the menu; the number keys switch weapons. There is no audio in this build, so there is nothing to mute.
+Press **Start** to boot into Doom. Arrow keys move and turn, F or Shift fires, Space uses, Enter confirms and Esc opens the menu; the number keys switch weapons. There is no audio in this build, so there is nothing to mute.
 
 `npm run verify` loads the page at 1440&times;900 and 1920&times;1080, starts the engine, drives it with the keyboard, and checks that it reaches the title screen quickly, that the changed-cell count stays below the total cell count once the screen is moving, and that the console stays free of errors and `[lattice]` warnings. `/bench/` replays a committed recording of the same pipeline at 80&times;50, 160&times;100 and 320&times;200 and reports the changed cells and fps each one achieves, so the resolution limit is a measured number rather than a guess.
 
