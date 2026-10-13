@@ -33,3 +33,9 @@ footer a { color: #1f6feb; }
   --lattice-hovered-background: transparent;
   --lattice-hover-background: transparent;
 }
+
+/* A screen, not a table: no borders of any width, no stripe, no text, no title on hover. */
+#grid, #grid .lattice { --lattice-border-width: 0px; --lattice-cell-border-width: 0px; --lattice-row-stripe: transparent; }
+#grid .lat-row { border-bottom-width: 0; }
+#grid .lat-cell { border-inline-end-width: 0; color: transparent; font-size: 0; line-height: 0; overflow: hidden; pointer-events: none; }
+#grid .lat-cell * { pointer-events: none; }
