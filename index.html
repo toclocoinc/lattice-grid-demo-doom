@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WebAssembly Doom on a Lattice Grid | Lattice Grid</title>
+<meta name="description" content="A WebAssembly build of Doom plays inside a Lattice grid: every frame is downsampled, diffed against the last one, and only the changed cells are pushed into the grid.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@toclocoinc/lattice-grid@1.100.1/lattice-grid.min.css">
+<link rel="stylesheet" href="styles.css?v=20261013a">
+<!-- The grid comes from the published package. To use a newer release, change the version in main.js. -->
+</head>
+<body>
+<header>
+  <h1>WebAssembly Doom on a Lattice grid</h1>
+  <p class="lede">Doom, compiled to WebAssembly, rendering into a 160&times;100 grid of coloured cells instead of a canvas. Each frame is box-filtered down to the grid's resolution, diffed against the previous frame, and only the cells that changed are pushed into the grid.</p>
+  <p class="links"><a href="https://github.com/toclocoinc/lattice-grid-demo-doom">Code on GitHub</a>
+  <a href="https://www.latticegrid.dev/">Lattice Grid</a></p>
+</header>
+<main class="demo">
+  <div class="toolbar" role="toolbar" aria-label="Doom controls">
+    <button type="button" id="start">Start</button>
+    <div class="group" role="group" aria-label="Resolution">
+      <span class="group-label">Resolution</span>
+      <button type="button" data-res="160x100" aria-pressed="true">160&times;100</button>
+      <button type="button" data-res="80x50" aria-pressed="false">80&times;50</button>
+    </div>
+    <span id="overlay" class="overlay" aria-live="polite">fps: &mdash; &middot; changed cells: &mdash;</span>
+  </div>
+  <div id="stage" class="stage">
+    <div id="grid" class="grid" aria-label="Doom frame" role="img"></div>
+    <p id="boot" class="boot">Press Start to boot Doom.</p>
+  </div>
+  <div class="legend" aria-label="Keyboard controls">
+    <span><kbd>&larr;</kbd><kbd>&uarr;</kbd><kbd>&darr;</kbd><kbd>&rarr;</kbd> move / turn</span>
+    <span><kbd>Ctrl</kbd> fire</span>
+    <span><kbd>Space</kbd> use</span>
+    <span><kbd>Esc</kbd> menu</span>
+    <span><kbd>Enter</kbd> confirm</span>
+    <span><kbd>1</kbd>&ndash;<kbd>7</kbd> weapon</span>
+  </div>
+</main>
+<footer>Built with <a href="https://www.latticegrid.dev/">Lattice Grid</a>. No keys, no analytics. A <a href="bench/">bench page</a> measures the same pipeline at three resolutions.</footer>
+<script type="module" src="main.js?v=20261013a"></script>
+</body>
+</html>
