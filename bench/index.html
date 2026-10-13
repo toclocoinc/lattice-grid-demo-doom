@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doom-on-a-grid bench | Lattice Grid</title>
+<meta name="description" content="Replays a recorded five-second walk through the Doom-on-a-grid demo's downsample-diff-push pipeline at three resolutions and reports changed cells and achieved fps for each.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@toclocoinc/lattice-grid@1.100.1/lattice-grid.min.css">
+<link rel="stylesheet" href="../styles.css?v=20261013a">
+<link rel="stylesheet" href="bench.css?v=20261013a">
+</head>
+<body>
+<header>
+  <h1>Doom-on-a-grid bench</h1>
+  <p class="lede">The same downsample, diff and push pipeline the live demo runs, replayed against a recorded five-second walk at 80&times;100, 160&times;100 and 320&times;200, so the resolution limit is a measured number rather than a guess.</p>
+  <p class="links"><a href="../">Back to the demo</a></p>
+</header>
+<main class="demo">
+  <div class="toolbar" role="toolbar" aria-label="Bench controls">
+    <button type="button" id="run">Run bench</button>
+    <span id="status" class="overlay" aria-live="polite">Idle.</span>
+  </div>
+  <table id="results" class="results">
+    <thead><tr><th>Resolution</th><th>Cells</th><th>Frames</th><th>Avg changed cells / frame</th><th>Achieved fps</th></tr></thead>
+    <tbody></tbody>
+  </table>
+  <div id="stage" class="stage bench-stage"><div id="grid" class="grid"></div></div>
+</main>
+<script type="module" src="bench.js?v=20261013a"></script>
+</body>
+</html>
