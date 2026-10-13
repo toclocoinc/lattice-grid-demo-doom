@@ -41,18 +41,41 @@ let fpsWindowStart = 0;
 let fps = 0;
 let changedLast = 0;
 
+
+/**
+ * Size the stage to the largest cols x rows box of square cells that fits the
+ * arena, so the grid sits inside the window at the frame's own aspect ratio
+ * (160x100 and 80x50 are both 1.6:1) with no scrolling in either direction.
+ * Returns the cell size in pixels.
+ */
+function fitStage(w, h) {
+  const arena = document.getElementById('arena');
+  const stage = document.getElementById('stage');
+  const box = arena.getBoundingClientRect();
+  const cell = Math.max(1, Math.min(Math.floor(box.width / w), Math.floor(box.height / h)));
+  stage.style.width = (cell * w) + 'px';
+  stage.style.height = (cell * h) + 'px';
+  return cell;
+}
+
+let resizeTimer = 0;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { buildGrid(cols, rows); }, 150);
+});
+
 function buildGrid(w, h) {
   if (grid) { grid.destroy(); grid = null; }
   cols = w; rows = h;
   prevPacked = new Int32Array(cols * rows).fill(-1);
 
-  const rect = gridHost.getBoundingClientRect();
-  const cellWidth = Math.max(1, Math.floor(rect.width / cols));
-  const cellHeight = Math.max(1, Math.floor(rect.height / rows));
+  const cell = fitStage(cols, rows);
+  const cellWidth = cell;
+  const cellHeight = cell;
 
   const columns = [];
   for (let c = 0; c < cols; c += 1) {
-    columns.push({ id: 'c' + c, field: 'c' + c, type: 'text', cell: { template: '' }, sort: false, filter: false, layout: { width: cellWidth, resizable: false } });
+    columns.push({ id: 'c' + c, field: 'c' + c, type: 'text', cell: { template: '' }, sort: false, filter: false, layout: { width: cellWidth, min: cellWidth, resizable: false } });
   }
   const data = [];
   for (let r = 0; r < rows; r += 1) {

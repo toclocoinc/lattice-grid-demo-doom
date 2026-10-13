@@ -16,7 +16,8 @@ button { font: inherit; font-size: 13px; padding: 4px 10px; border: 1px solid #c
 button:disabled { cursor: default; color: #9aa4ad; }
 button[aria-pressed="true"] { background: #2d6bff; color: #fff; border-color: #2d6bff; }
 .overlay { color: #5b6570; font-size: 13px; margin-left: auto; font-variant-numeric: tabular-nums; }
-.stage { flex: 1; min-height: 0; position: relative; border: 1px solid #dfe3e6; border-radius: 6px; overflow: hidden; background: #000; }
+.arena { flex: 1; min-height: 0; min-width: 0; display: flex; align-items: center; justify-content: center; }
+.stage { flex: none; position: relative; border: 1px solid #dfe3e6; border-radius: 6px; overflow: hidden; background: #000; box-sizing: content-box; }
 .grid { position: absolute; inset: 0; }
 .boot { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; margin: 0; color: #cfd6dc; background: #000; font-size: 1.1rem; }
 .boot[hidden] { display: none; }
