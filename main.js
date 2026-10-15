@@ -1,4 +1,4 @@
-import { processFrame, rowUpdates } from './pipeline.js?v=20261015c';
+import { processFrame, rowUpdates } from './pipeline.js?v=20261015d';
 
 const GRID = 'https://cdn.latticegrid.dev/lattice-grid@1.103.2';
 // Public, domain-bound key for toclocoinc.github.io; on localhost no key is needed.
@@ -190,7 +190,7 @@ startButton.addEventListener('click', async () => {
   if (running) return;
   startButton.disabled = true;
   startButton.textContent = 'Loading…';
-  const { default: createDoomModule } = await import('./engine/dist/doomgeneric.js?v=20261015c');
+  const { default: createDoomModule } = await import('./engine/dist/doomgeneric.js?v=20261015d');
   const Module = await createDoomModule({ onDoomFrame, onDoomTitle, locateFile: (path) => `engine/dist/${path}` });
   dgKeyEvent = Module.cwrap('dg_key_event', 'void', ['number', 'number']);
   running = true;
