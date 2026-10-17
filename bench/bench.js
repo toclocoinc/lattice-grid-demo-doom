@@ -1,6 +1,6 @@
-import { processFrame, rowUpdates } from '../pipeline.js?v=20261017d';
+import { processFrame, rowUpdates } from '../pipeline.js?v=20261017e';
 
-const GRID = 'https://cdn.latticegrid.dev/lattice-grid@1.104.1';
+const GRID = 'https://cdn.latticegrid.dev/lattice-grid@1.105.0';
 const LICENCE = 'LG1.eyJ2IjoxLCJwIjoibGF0dGljZS1ncmlkIiwidCI6IlRPQ0xPQ08gSW5jIC0gcHVibGljIGRlbW9zIiwiZSI6IjIwMzAtMDEtMDEiLCJkIjpbInRvY2xvY29pbmMuZ2l0aHViLmlvIl19.9De42ua3aCGpiMB6EVRP7Tv-upUlDI-0T07rlSPzvCrsqg8t4YJi7SRnStEpAg48uzmcG7il1fR_TfwkUE7iCA';
 
 const { createGrid, setLicence } = await import(GRID + '/lattice-grid.esm.min.js');
