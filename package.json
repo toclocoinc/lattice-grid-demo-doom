@@ -4,6 +4,6 @@
   "type": "module",
   "description": "A WebAssembly build of Doom plays inside a Lattice grid: a Lattice Grid demo",
   "scripts": { "serve": "node tools/serve.mjs 8000", "verify": "node tools/verify.mjs" },
-  "dependencies": { "@toclocoinc/lattice-grid": "1.100.1" },
+  "dependencies": { "@toclocoinc/lattice-grid": "1.111.5" },
   "devDependencies": { "puppeteer-core": "^24.0.0" }
 }

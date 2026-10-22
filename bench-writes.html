@@ -1,0 +1,25 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/vendor-fix/lattice-grid.min.css"><style>html,body{margin:0;height:100%}#g{width:1600px;height:500px;--lattice-border-width:0px;--lattice-cell-padding-x:0px;--lattice-cell-padding-y:0px}#g .lat-cell{font-size:0;color:transparent}</style></head>
+<body><div id="g"></div>
+<script type="module">
+const { createGrid } = await import('/vendor-fix/lattice-grid.esm.min.js');
+const COLS = 80, ROWS = 50;
+const columns = Array.from({ length: COLS }, (_, c) => ({ field: 'c' + c, title: '', sort: false, filter: false, value: { format: () => '' }, layout: { width: 20, min: 20 } }));
+const rows = Array.from({ length: ROWS }, (_, r) => { const o = { id: r }; for (let c = 0; c < COLS; c++) o['c' + c] = '#000000'; return o; });
+const grid = createGrid(document.getElementById('g'), { columns, rows, rowKey: 'id', showHeader: false, gridLines: 'none', selection: 'none', rowHeight: 10, density: 'compact', formatting: { '*': [{ when: { op: 'notBlank' }, style: (p) => ({ background: String(p.value) }) }] } });
+await new Promise(r => setTimeout(r, 600));
+const hex = (i) => '#' + ((i * 2654435761) >>> 8).toString(16).padStart(6, '0').slice(0, 6);
+let seed = 1; const out = [];
+const count = async (cells, rowsTouched) => {
+  const stats = { attr: 0, childList: 0, chars: 0, styleCells: new Set(), by: {}, added: {} };
+  const mo = new MutationObserver((muts) => { for (const m of muts) { if (m.type === 'attributes') { stats.attr++; const k = (m.target.className || m.target.tagName).toString().split(' ')[0] + '[' + m.attributeName + ']' + (m.target.getAttribute(m.attributeName) === m.oldValue ? '=same' : ''); stats.by[k] = (stats.by[k] || 0) + 1; if (m.attributeName === 'style' && m.target.classList && m.target.classList.contains('lat-cell')) stats.styleCells.add(m.target); } else if (m.type === 'childList') { stats.childList += m.addedNodes.length + m.removedNodes.length; for (const n of m.addedNodes) { const k = (n.className || n.nodeName).toString().split(' ')[0]; stats.added[k] = (stats.added[k] || 0) + 1; } } else stats.chars++; } });
+  mo.observe(document.getElementById('g'), { attributes: true, attributeOldValue: true, childList: true, characterData: true, subtree: true });
+  const perRow = Math.ceil(cells / rowsTouched); const updates = [];
+  for (let r = 0; r < rowsTouched; r++) { const u = { id: r }; for (let k = 0; k < perRow; k++) u['c' + ((k * 3) % COLS)] = hex(seed++); updates.push(u); }
+  grid.rows.apply({ update: updates });
+  await new Promise(r => setTimeout(r, 400));
+  mo.disconnect();
+  const top = Object.entries(stats.by).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, v]) => k + ':' + v).join(', '); const add = Object.entries(stats.added).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, v]) => k + ':' + v).join(', '); return `${cells} cells/${rowsTouched} rows -> style writes on cells ${stats.styleCells.size}; attr writes ${stats.attr} [${top}]; added nodes [${add}]`;
+};
+out.push(await count(50, 1), await count(900, 50), await count(4000, 50));
+window.__out = out; document.title = 'done';
+</script></body></html>

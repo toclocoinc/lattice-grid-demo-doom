@@ -1,0 +1,25 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;height:100%}#g{width:1600px;height:500px}#g .ag-cell,#g .ag-row{padding:0;border:none;--ag-row-border:0px}</style>
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@36.1.0/dist/ag-grid-community.min.js"></script></head>
+<body><div id="g" class="ag-theme-quartz"></div>
+<script type="module">
+const COLS = 80, ROWS = 50;
+const columnDefs = Array.from({ length: COLS }, (_, c) => ({ field: 'c' + c, flex: 1, minWidth: 4, sortable: false, resizable: false, suppressMovable: true, cellStyle: (p) => ({ backgroundColor: p.value }), valueFormatter: () => '' }));
+const rowData = Array.from({ length: ROWS }, (_, r) => { const o = { id: r }; for (let c = 0; c < COLS; c++) o['c' + c] = '#000000'; return o; });
+const api = agGrid.createGrid(document.getElementById('g'), { columnDefs, rowData, getRowId: (p) => String(p.data.id), headerHeight: 0, rowHeight: 10, animateRows: false, suppressCellFocus: true, suppressColumnVirtualisation: true, suppressRowVirtualisation: true });
+const hex = (i) => '#' + ((i * 2654435761) >>> 8).toString(16).padStart(6, '0').slice(0, 6);
+await new Promise(r => setTimeout(r, 1500));
+const run = async (cells, rowsTouched, frames = 20) => {
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const t0 = performance.now(); let seed = 1;
+  for (let f = 0; f < frames; f++) {
+    const perRow = Math.ceil(cells / rowsTouched); const updates = [];
+    for (let r = 0; r < rowsTouched; r++) { const u = { id: r }; for (let k = 0; k < perRow; k++) u['c' + ((k * 7 + f) % COLS)] = hex(seed++); updates.push(u); }
+    api.applyTransaction({ update: updates });
+    await new Promise(r => requestAnimationFrame(r));
+  }
+  const ms = (performance.now() - t0) / frames;
+  return `other grid, 80x50, cellStyle: ${cells} cells over ${rowsTouched} rows -> ${ms.toFixed(1)} ms/frame (${(1000 / ms).toFixed(1)} fps ceiling)`;
+};
+window.__out = [await run(100, 1), await run(100, 50), await run(900, 50), await run(4000, 50)];
+document.title = 'done';
+</script></body></html>

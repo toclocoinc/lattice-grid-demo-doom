@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/node_modules/@toclocoinc/lattice-grid/lattice-grid.min.css"><style>html,body{margin:0;height:100%}#g{width:1920px;height:1000px}</style></head>
+<body><div id="g"></div>
+<script type="module">
+const { createGrid } = await import('/node_modules/@toclocoinc/lattice-grid/lattice-grid.esm.min.js');
+const COLS = 160, ROWS = 100;
+const columns = Array.from({ length: COLS }, (_, c) => ({ field: 'c' + c, title: '', width: 12 }));
+const rows = Array.from({ length: ROWS }, (_, r) => { const o = { id: r }; for (let c = 0; c < COLS; c++) o['c' + c] = '#000000'; return o; });
+const mk = (withFormatting) => {
+  document.getElementById('g').innerHTML = '';
+  return createGrid(document.getElementById('g'), { columns, rows, rowKey: 'id', rowHeight: 10, ...(withFormatting ? { formatting: { '*': [{ when: { op: 'notBlank' }, style: (p) => ({ background: String(p.value) }) }] } } : {}) });
+};
+const hex = (i) => '#' + ((i * 2654435761) >>> 8).toString(16).padStart(6, '0').slice(0, 6);
+const run = async (grid, label, cells, rowsTouched, frames = 20) => {
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const t0 = performance.now(); let seed = 1;
+  for (let f = 0; f < frames; f++) {
+    const perRow = Math.ceil(cells / rowsTouched); const updates = [];
+    for (let r = 0; r < rowsTouched; r++) { const u = { id: r }; for (let k = 0; k < perRow; k++) { u['c' + ((k * 7 + f) % COLS)] = hex(seed++); } updates.push(u); }
+    grid.rows.apply({ update: updates });
+    await new Promise(r => requestAnimationFrame(r));
+  }
+  const ms = (performance.now() - t0) / frames;
+  return `${label}: ${cells} cells over ${rowsTouched} rows -> ${ms.toFixed(1)} ms/frame (${(1000 / ms).toFixed(1)} fps ceiling)`;
+};
+const out = [];
+for (const fmt of [true, false]) {
+  const grid = mk(fmt); await new Promise(r => setTimeout(r, 300));
+  const tag = fmt ? 'style rule' : 'no rule';
+  out.push(await run(grid, tag, 100, 100));
+  out.push(await run(grid, tag, 100, 1));
+  out.push(await run(grid, tag, 900, 100));
+  out.push(await run(grid, tag, 4000, 100));
+  out.push(await run(grid, tag, 16000, 100));
+  grid.destroy && grid.destroy();
+}
+window.__out = out; document.title = 'done';
+</script></body></html>
